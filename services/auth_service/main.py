@@ -12,7 +12,7 @@ import os
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://user:password@localhost:5432/RepoNote")
 SECRET_KEY = os.getenv("SECRET_KEY", "supersecretkey")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 52560000 # 100 years (effectively infinite)
 
 # --- DB Setup ---
 engine = create_engine(DATABASE_URL)
