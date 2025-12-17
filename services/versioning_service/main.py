@@ -12,6 +12,7 @@ DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://user:password@localhost:5
 SECRET_KEY = os.getenv("SECRET_KEY", "supersecretkey")
 ALGORITHM = "HS256"
 STORAGE_SERVICE_URL = os.getenv("STORAGE_SERVICE_URL", "http://storage_service:8000")
+STORAGE_PUBLIC_URL = os.getenv("STORAGE_PUBLIC_URL", "http://localhost:8005")
 
 # --- DB Setup ---
 engine = create_engine(DATABASE_URL)
@@ -25,6 +26,15 @@ class Version(Base):
     version_number = Column(Integer)
     storage_path = Column(String)
     file_name = Column(String)
+    created_at = Column(String, default=lambda: str(datetime.utcnow()))
+
+class Document(Base):
+    __tablename__ = "documents"
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, index=True)
+    description = Column(String, nullable=True)
+    owner_id = Column(Integer, index=True)
+    tags = Column(String, nullable=True)
     created_at = Column(String, default=lambda: str(datetime.utcnow()))
 
 Base.metadata.create_all(bind=engine)
@@ -42,8 +52,11 @@ def get_current_user_id(authorization: str = Header(None)):
         raise HTTPException(status_code=401, detail="Missing Token")
     try:
         token = authorization.replace("Bearer ", "")
-        jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return True # Just verify validity
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("user_id")
+        if user_id is None:
+             raise HTTPException(status_code=401, detail="Invalid Token Payload")
+        return user_id
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid Token")
 
@@ -72,10 +85,16 @@ app.add_middleware(
 async def create_version(
     document_id: int, 
     file: UploadFile = File(...), 
+    user_id: int = Depends(get_current_user_id),
     authorization: str = Header(None),
     db: Session = Depends(get_db)
 ):
-    get_current_user_id(authorization) # Validate Token logic
+    # 0. Check Ownership
+    doc = db.query(Document).filter(Document.id == document_id).first()
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+    if doc.owner_id != user_id:
+        raise HTTPException(status_code=403, detail="Not authorized to add version to this document")
     
     # 1. Upload to Storage Service
     files = {'file': (file.filename, file.file, file.content_type)}
@@ -84,7 +103,7 @@ async def create_version(
         # Note: In real world, we might use Minio client directly here or presigned URLs. 
         # For this setup, we'll proxy or just separate the concern. 
         # Let's assume Storage Service has an upload endpoint that returns the path.
-        res = requests.post(f"{STORAGE_SERVICE_URL}/upload", files=files)
+        res = requests.post(f"{STORAGE_SERVICE_URL}/upload", files=files, headers={"Authorization": authorization})
         if res.status_code != 200:
             raise HTTPException(status_code=500, detail="Storage upload failed")
         storage_data = res.json()
@@ -113,7 +132,7 @@ async def create_version(
         "version_number": new_version.version_number,
         "file_name": new_version.file_name,
         "created_at": new_version.created_at,
-        "download_url": f"{STORAGE_SERVICE_URL}/download/{storage_path}" 
+        "download_url": f"{STORAGE_PUBLIC_URL}/download/{storage_path}" 
     }
 
 @app.get("/versions/{document_id}", response_model=list[VersionOut])
@@ -127,7 +146,7 @@ def list_versions(document_id: int, db: Session = Depends(get_db)):
             "version_number": v.version_number,
             "file_name": v.file_name,
             "created_at": v.created_at,
-            "download_url": f"{STORAGE_SERVICE_URL}/download/{v.storage_path}"
+            "download_url": f"{STORAGE_PUBLIC_URL}/download/{v.storage_path}"
         }
         for v in versions
     ]
