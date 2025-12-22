@@ -96,6 +96,11 @@ def get_document(doc_id: int, user_id: int = Depends(get_current_user_id), db: S
     doc = db.query(Document).filter(Document.id == doc_id).first()
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
+    
+    # Enforce ownership
+    if doc.owner_id != user_id:
+        raise HTTPException(status_code=403, detail="Not authorized to access this document")
+        
     return doc
 
 @app.put("/documents/{doc_id}", response_model=DocumentOut)
