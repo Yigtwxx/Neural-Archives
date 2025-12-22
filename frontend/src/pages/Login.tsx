@@ -23,9 +23,27 @@ const Login = () => {
             alert("Login Successful!");
             navigate('/');
         } catch (err: any) {
-            console.error(err);
-            setError('Invalid credentials');
-            alert("Login Failed: Invalid credentials or server error");
+            console.error("Login Error Details:", err);
+
+            let message = 'Login Failed';
+            if (err.response) {
+                // Server responded with a status code
+                message += `: ${err.response.status} ${err.response.statusText}`;
+                if (err.response.data && err.response.data.detail) {
+                    message += ` - ${err.response.data.detail}`;
+                } else {
+                    message += ` - ${JSON.stringify(err.response.data)}`;
+                }
+            } else if (err.request) {
+                // Request made but no response received
+                message += ': No response received from server. Check network or server status.';
+            } else {
+                // Error setting up request
+                message += `: ${err.message}`;
+            }
+
+            setError(message);
+            alert(`${message}\n\nURL Tried: ${AUTH_URL}/token`);
         }
     };
 
@@ -58,7 +76,7 @@ const Login = () => {
                         />
                     </div>
 
-                    <button type="submit" className="w-full py-3 rounded-lg bg-primary hover:bg-primary/90 text-white font-semibold transition-colors mt-2">
+                    <button type="submit" className="w-full py-3 rounded-lg bg-primary hover:bg-primary/80 text-white font-bold transition-all mt-2 shadow-[0_0_15px_rgba(112,66,248,0.5)] hover:shadow-[0_0_25px_rgba(112,66,248,0.7)] hover:scale-[1.02] active:scale-[0.98]">
                         Login
                     </button>
                 </form>
