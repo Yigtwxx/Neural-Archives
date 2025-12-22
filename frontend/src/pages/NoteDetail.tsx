@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import api, { DOC_URL, VER_URL, COM_URL } from '../services/api';
-import { Download, MessageCircle, Clock, File } from 'lucide-react';
+import { Download, MessageCircle, Clock, File, Upload as UploadIcon } from 'lucide-react';
 
 interface Document {
     id: number;
@@ -24,6 +24,58 @@ interface Comment {
     content: string;
     created_at: string;
 }
+
+const FilePreview = ({ url, filename }: { url: string, filename: string }) => {
+    const ext = filename?.split('.').pop()?.toLowerCase() || '';
+    // Ensure absolute URL for external viewers (like Google Docs)
+    const absoluteUrl = url.startsWith('http') ? url : `${window.location.origin}${url}`;
+
+    if (ext === 'pdf') {
+        return (
+            <div className="w-full h-[800px] bg-white/5 rounded-xl overflow-hidden border border-white/10">
+                <iframe src={url} className="w-full h-full" title="PDF Preview" />
+            </div>
+        );
+    }
+    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext)) {
+        return (
+            <div className="w-full flex justify-center bg-black/40 rounded-xl border border-white/10 p-4">
+                <img src={url} alt={filename} className="max-h-[600px] object-contain rounded-lg" />
+            </div>
+        );
+    }
+    if (['mp4', 'webm', 'ogg'].includes(ext)) {
+        return (
+            <div className="w-full bg-black/40 rounded-xl border border-white/10 overflow-hidden">
+                <video src={url} controls className="w-full" />
+            </div>
+        );
+    }
+    if (['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx'].includes(ext)) {
+        return (
+            <div className="w-full h-[800px] bg-white/5 rounded-xl overflow-hidden border border-white/10 relative">
+                <iframe
+                    src={`https://docs.google.com/viewer?url=${encodeURIComponent(absoluteUrl)}&embedded=true`}
+                    className="w-full h-full"
+                    title="Office Preview"
+                />
+                <div className="absolute inset-0 pointer-events-none flex items-center justify-center bg-black/50 opacity-0 hover:opacity-100 transition-opacity">
+                    <span className="text-white font-bold bg-black/80 px-4 py-2 rounded-full">External Viewer</span>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="w-full h-64 flex flex-col items-center justify-center bg-white/5 rounded-xl border border-dashed border-white/10 text-gray-500 gap-4">
+            <File size={48} className="opacity-50" />
+            <div className="text-center">
+                <p>Preview not available for .{ext} files.</p>
+                <a href={url} target="_blank" rel="noreferrer" className="text-secondary hover:underline text-sm">Download to view</a>
+            </div>
+        </div>
+    );
+};
 
 const NoteDetail = () => {
     const { id } = useParams();
@@ -77,6 +129,16 @@ const NoteDetail = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content: Info & Versions */}
             <div className="lg:col-span-2 space-y-8">
+                {/* Home Button */}
+                <div>
+                    <Link to="/">
+                        <button className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-white font-mono text-sm backdrop-blur-md group mb-6">
+                            <UploadIcon className="rotate-[-90deg] group-hover:-translate-x-1 transition-transform" size={18} />
+                            <span>Home</span>
+                        </button>
+                    </Link>
+                </div>
+
                 <div>
                     <h1 className="text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
                         {doc.title}
@@ -89,6 +151,20 @@ const NoteDetail = () => {
                         Created on {new Date(doc.created_at).toLocaleDateString()}
                     </div>
                 </div>
+
+                {/* --- File Preview Section --- */}
+                {versions.length > 0 && (
+                    <div className="animate-fade-in">
+                        <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-white">
+                            <span className="w-1.5 h-6 bg-cyan-400 rounded-full"></span>
+                            Content Preview
+                        </h3>
+                        <FilePreview
+                            url={versions[0].download_url}
+                            filename={versions[0].file_name}
+                        />
+                    </div>
+                )}
 
                 <div className="glass-card p-6">
                     <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
