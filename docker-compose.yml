@@ -95,6 +95,7 @@ services:
       - MINIO_ACCESS_KEY=minioadmin
       - MINIO_SECRET_KEY=minioadmin
       - BUCKET_NAME=reponote-files
+      - SECRET_KEY=supersecretkey
     depends_on:
       - minio
 
