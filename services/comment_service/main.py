@@ -87,8 +87,25 @@ def add_comment(comment: CommentCreate, user: dict = Depends(get_current_user), 
     db.refresh(new_comment)
     return new_comment
 
+class Document(Base):
+    __tablename__ = "documents"
+    id = Column(Integer, primary_key=True, index=True)
+    owner_id = Column(Integer, index=True)
+
 @app.get("/comments/{document_id}", response_model=list[CommentOut])
-def list_comments(document_id: int, version_id: int | None = None, db: Session = Depends(get_db)):
+def list_comments(document_id: int, version_id: int | None = None, user: dict = Depends(get_current_user), db: Session = Depends(get_db)):
+    # Check ownership
+    doc = db.query(Document).filter(Document.id == document_id).first()
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+    
+    # We only restrict if user is NOT the owner? 
+    # Actually, usually comments are visible to the owner. 
+    # If this is a shared doc system, viewers might see comments. 
+    # But currently it's "private notes", so only owner should access.
+    if doc.owner_id != user["user_id"]:
+         raise HTTPException(status_code=403, detail="Not authorized to view comments")
+
     query = db.query(Comment).filter(Comment.document_id == document_id)
     if version_id:
         query = query.filter(Comment.version_id == version_id)
