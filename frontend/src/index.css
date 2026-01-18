@@ -87,12 +87,26 @@ body {
   }
 }
 
-@layer utilities {
-  .glass-card {
-    @apply bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-2xl transition-all duration-300 hover:bg-white/[0.06] hover:border-white/[0.15] hover:shadow-2xl;
-  }
+/* Glass Card Utility - Cam efektli kart stili */
+.glass-card {
+  background-color: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  transition: all 300ms ease;
+}
 
-  .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-white to-purple-500;
-  }
+.glass-card:hover {
+  background-color: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Text Gradient Utility - Gradient metin efekti */
+.text-gradient {
+  background: linear-gradient(to right, #22d3ee, #ffffff, #a855f7);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
