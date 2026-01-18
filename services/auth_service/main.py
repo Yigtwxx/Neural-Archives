@@ -79,6 +79,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.post("/register", response_model=Token)
 def register(user: UserCreate, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.username == user.username).first()
