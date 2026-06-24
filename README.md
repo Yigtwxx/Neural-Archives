@@ -28,12 +28,12 @@ Whether deployed locally via Docker Compose or in the cloud on Hugging Face Spac
     *   **JWT Authentication**: Secure, stateless user sessions globally.
     *   **Argon2 Hashing**: Industry-standard password protection.
     *   **Private Storage**: All files are stored in private MinIO buckets, accessible only via signed requests.
-*   **⏱️ Version Control**: Never lose work. Track document history automatically, view previous versions, and revert changes with a Git-like experience.
-*   **💬 Real-Time Collaboration**: Context-aware commenting system allows teams to discuss documents directly within the interface.
-*   **☁️ Hybrid Storage**: Utilizes **MinIO** for high-performance object storage (S3 compatible) and **PostgreSQL** for structured relational data.
-*   **🐳 Docker Native**: Built from the ground up to run in containers, ensuring consistency across development and production environments.
+*   ** Version Control**: Never lose work. Track document history automatically, view previous versions, and revert changes with a Git-like experience.
+*   ** Real-Time Collaboration**: Context-aware commenting system allows teams to discuss documents directly within the interface.
+*   ** Hybrid Storage**: Utilizes **MinIO** for high-performance object storage (S3 compatible) and **PostgreSQL** for structured relational data.
+*   ** Docker Native**: Built from the ground up to run in containers, ensuring consistency across development and production environments.
 
-## 🏗️ Architecture
+##  Architecture
 
 RepoNote follows a modern microservices pattern proxied by Nginx.
 
