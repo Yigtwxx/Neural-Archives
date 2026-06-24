@@ -2,8 +2,6 @@
 
 <div align="center">
 
-![RepoNote Banner](https://via.placeholder.com/1200x300?text=RepoNote+|+Modern+Document+Management)
-
 **Modern Document Management for the Microservices Era**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -42,11 +40,11 @@ graph TD
     Client["Client (React SPA)"] -->|HTTP/REST| Gateway["Nginx Gateway"]
     
     subgraph "Microservices Layer"
-        Gateway -->|/api/auth| AuthService["🔐 Auth Service"]
-        Gateway -->|/api/document| DocService["📄 Document Service"]
-        Gateway -->|/api/versioning| VerService["⏱️ Versioning Service"]
-        Gateway -->|/api/comment| CommentService["💬 Comment Service"]
-        Gateway -->|/api/storage| StorageService["📦 Storage Service"]
+        Gateway -->|/api/auth| AuthService[" Auth Service"]
+        Gateway -->|/api/document| DocService[" Document Service"]
+        Gateway -->|/api/versioning| VerService[" Versioning Service"]
+        Gateway -->|/api/comment| CommentService[" Comment Service"]
+        Gateway -->|/api/storage| StorageService[" Storage Service"]
     end
 
     subgraph "Data Layer"
