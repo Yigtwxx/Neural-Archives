@@ -21,10 +21,10 @@
 
 Whether deployed locally via Docker Compose or in the cloud on Hugging Face Spaces, RepoNote provides a seamless experience for managing your critical documents.
 
-## ✨ Key Features
+##  Key Features
 
-*   **🧩 Microservices Architecture**: A fully modular design comprising 5 independent services (Auth, Document, Versioning, Comment, Storage) for maximum scalability and fault isolation.
-*   **🔒 Enterprise-Grade Security**:
+*   ** Microservices Architecture**: A fully modular design comprising 5 independent services (Auth, Document, Versioning, Comment, Storage) for maximum scalability and fault isolation.
+*   ** Enterprise-Grade Security**:
     *   **JWT Authentication**: Secure, stateless user sessions globally.
     *   **Argon2 Hashing**: Industry-standard password protection.
     *   **Private Storage**: All files are stored in private MinIO buckets, accessible only via signed requests.
