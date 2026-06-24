@@ -15,7 +15,7 @@
 
 ---
 
-## 🚀 Overview
+##  Overview
 
 **RepoNote** is a scalable, full-stack document management platform engineered with a robust **microservices architecture**. It goes beyond simple file storage by offering advanced version control, real-time collaboration, and secure access management. Designed for performance and maintainability, RepoNote separates core concerns into distinct, independently deployable services.
 
